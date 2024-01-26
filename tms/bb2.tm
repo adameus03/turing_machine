@@ -1,0 +1,7 @@
+2 2
+A B
+H
+0 1
+L R
+1RB 1LA
+1LB 1RH
