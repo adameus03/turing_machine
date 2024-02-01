@@ -48,6 +48,7 @@ void render_counter(unsigned int counter) {
     SDL_Color White = {255, 255, 255};
     char text[20];
     sprintf(text, "Step: %u", counter);
+    printf("Step: %u\n", counter);
     SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, text, White);
     SDL_Texture* Message = SDL_CreateTextureFromSurface(m_window_renderer, surfaceMessage);
     SDL_Rect Message_rect;
@@ -61,6 +62,11 @@ void render_counter(unsigned int counter) {
     SDL_DestroyTexture(Message);
 }
 
+//#define SCREEN_FLICKER_FIX
+
+/**
+ * If this function causes screen flickering, try to use SDL_RenderClear() instead of SDL_RenderFillRect()
+*/
 void clear_window() {
     SDL_Rect rect;
     rect.x = 0;
@@ -68,11 +74,15 @@ void clear_window() {
     rect.w = window_width;
     rect.h = window_height;
     
+    #ifndef SCREEN_FLICKER_FIX
     //Fill the full window with black
     SDL_SetRenderDrawColor(m_window_renderer, 0, 0, 0, 255);
     SDL_RenderFillRect(m_window_renderer, &rect);
     SDL_RenderCopy(m_window_renderer, NULL, &rect, &rect);
     //SDL_RenderPresent(m_window_renderer);
+    #else
+    SDL_RenderClear(m_window_renderer);
+    #endif
 }
 
 /**
@@ -84,7 +94,7 @@ void clear_window() {
  * The height of the tape is determined by NUM_STEPS_PER_WINDOW and the window height.
 */
 void render_current_tm_tape(turing_machine_t* tm, turing_machine_stat_t* tm_stat) {
-    tm_tape_numeric_t render_tape_num_cells = MAX_TAPE_POS - MIN_TAPE_POS + 1;
+    tm_tape_numeric_t render_tape_num_cells = MAX_TAPE_POS - MIN_TAPE_POS + 1;    
     for (tm_tape_numeric_t i = 0; i < render_tape_num_cells; i++) {
         SDL_Rect rect;
         rect.x = i * window_width / render_tape_num_cells;
@@ -92,14 +102,25 @@ void render_current_tm_tape(turing_machine_t* tm, turing_machine_stat_t* tm_stat
         rect.y %= window_height; // wrap around
         rect.w = window_width / render_tape_num_cells;
         rect.h = window_height / NUM_STEPS_PER_WINDOW;
-        if (tm->tape[MIN_TAPE_POS + i] == 0) {
+
+        tm_tape_numeric_t tape_pos = MIN_TAPE_POS + i;
+        tm_symbol_t read_symbol = tm->tape[tape_pos];
+        
+        if (read_symbol == 0 && tape_pos >= tm_stat->min_head && tape_pos <= tm_stat->max_head) {
             //SDL_SetRenderDrawColor(m_window_renderer, 255, 0, 0, 255);
+            SDL_SetRenderDrawColor(m_window_renderer, 100, 100, 100, 255);
+        }
+        else if (read_symbol == 0) {
             SDL_SetRenderDrawColor(m_window_renderer, 0, 0, 0, 255);
         }
-        else {
+        else if (read_symbol == 1) {
             //SDL_SetRenderDrawColor(m_window_renderer, 0, 255, 0, 255);
             SDL_SetRenderDrawColor(m_window_renderer, 255, 255, 255, 255);
         }
+        else {
+            SDL_SetRenderDrawColor(m_window_renderer, 0, 0, 255, 255);
+        }
+
         SDL_RenderFillRect(m_window_renderer, &rect);
         SDL_RenderCopy(m_window_renderer, NULL, &rect, &rect);
     }
@@ -114,9 +135,9 @@ void animate_tm(turing_machine_t* tm) {
 
 
     while(tm_get_status(tm) == TM_STATUS_RUNNING) {
+        printf("Frame\n");
         tm_make_transition(tm, &tm_stat);
         render_counter(tm_stat.num_steps);
-
         render_current_tm_tape(tm, &tm_stat);
 
         if ((tm_stat.num_steps % NUM_STEPS_PER_WINDOW) == 0) {

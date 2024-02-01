@@ -2,13 +2,13 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-#define VISUALIZER_WINDOW_WIDTH 300 // 0 means full width
-#define VISUALIZER_WINDOW_HEIGHT 300 // 0 means full height
+#define VISUALIZER_WINDOW_WIDTH 0//300 // 0 means full width
+#define VISUALIZER_WINDOW_HEIGHT 0//300 // 0 means full height
 
-#define FRAME_DURATION_MS 10
-#define NUM_STEPS_PER_WINDOW 100
-#define MIN_TAPE_POS 450//400
-#define MAX_TAPE_POS 550//600
+#define FRAME_DURATION_MS 20
+#define NUM_STEPS_PER_WINDOW 1000
+#define MIN_TAPE_POS 300//450
+#define MAX_TAPE_POS 700//550
 
 //void DrawCircle(SDL_Renderer* renderer, int32_t centreX, int32_t centreY, int32_t radius);
 //void DrawHollowCircle(SDL_Renderer* renderer, int32_t centreX, int32_t centreY, int32_t radius);

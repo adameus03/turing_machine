@@ -16,6 +16,7 @@ int main()
     //load_visualization_tm("../tms/bb2.tm");
     //load_visualization_tm("../tms/bb3.tm");
     //load_visualization_tm("../tms/bb4.tm");
-    load_visualization_tm("../tms/bb5c.tm");
+    //load_visualization_tm("../tms/bb5c.tm");
+    load_visualization_tm("../tms/bb6c.tm");
     return 0;
 }
